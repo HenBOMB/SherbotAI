@@ -35,7 +35,7 @@ export const config = {
         dailyTipsEnabled: process.env.DAILY_TIPS_ENABLED !== 'false',
         autoModEnabled: process.env.AUTO_MOD_ENABLED !== 'false',
         profiler: {
-            enabled: true,
+            enabled: false,
             ignoredKeywords: ['welcome', 'rules', 'announcement', 'info', 'bot', 'server', 'role', 'roles', 'channel', 'channels', 'member', 'members', 'user', 'users', 'moderation', 'moderator', 'moderators', 'admin', 'admins', 'owner', 'owners'],
             // Add guild IDs here to restrict scanning, or leave empty to scan all guilds the bot is in
             targetGuilds: [process.env.MAIN_GUILD_ID || '670107546480017409'],

@@ -68,17 +68,6 @@ export default class InterrogationManager {
                     return;
                 }
 
-                const content = message.content.trim();
-                if (!content) return;
-
-                // MAX LENGTH CAP: Prevent abuse and token waste
-                if (content.length > 400) {
-                    await message.reply({
-                        content: `⚠️ **Message too long!** (${content.length} > 400 characters)\n*Please keep your interrogation concise to avoid overwhelming the suspect.*`
-                    });
-                    return;
-                }
-
                 // Detect Location using the new robust method
                 const channel = message.channel instanceof TextChannel ? message.channel : null;
                 if (!channel) {
@@ -95,6 +84,17 @@ export default class InterrogationManager {
                 // SECURITY: Only participants can trigger interrogation responses
                 if (!this.context.isParticipant(message.author.id)) {
                     logger.debug(`[INTERROGATION] Ignored: ${message.author.tag} (${message.author.id}) is not a participant.`);
+                    return;
+                }
+
+                const content = message.content.trim();
+                if (!content) return;
+
+                // MAX LENGTH CAP: Prevent abuse and token waste
+                if (content.length > 400) {
+                    await message.reply({
+                        content: `⚠️ **Message too long!** (${content.length} > 400 characters)\n*Please keep your interrogation concise to avoid overwhelming the suspect.*`
+                    });
                     return;
                 }
 

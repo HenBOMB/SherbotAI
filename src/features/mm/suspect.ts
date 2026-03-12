@@ -350,6 +350,19 @@ export default class Suspect {
     }
 
     /**
+     * Apply any special effects when a secret is revealed (e.g., dynamic resistance drop)
+     */
+    private applySecretEffects(secret: SecretData): void {
+        if (!secret.on_reveal) return;
+
+        if (secret.on_reveal.resistance_level) {
+            const oldLevel = this.data.resistance_level;
+            this.data.resistance_level = secret.on_reveal.resistance_level;
+            logger.info(`📉 DYNAMIC RESISTANCE DROP for ${this.data.name}: ${oldLevel} -> ${this.data.resistance_level}`);
+        }
+    }
+
+    /**
      * Evaluate an interrogation message for secret triggers.
      * 
      * KEY DESIGN DECISIONS (anti-cheese):
@@ -453,7 +466,7 @@ export default class Suspect {
 
         // Determine if a secret should be revealed
         let triggeredSecret: SecretData | null = null;
-        if (bestMatch && bestMatch.currentHits >= 2) {
+        if (bestMatch && bestMatch.currentHits > 0 && bestMatch.keywords.length >= 2) {
             const secret = bestMatch.secret;
             const minPressure = secret.trigger.minPressure ?? 30;
             const composureLoss = 100 - this._state.composure;
@@ -461,6 +474,7 @@ export default class Suspect {
             if (composureLoss >= minPressure) {
                 triggeredSecret = secret;
                 this._revealedSecrets.add(secret.id);
+                this.applySecretEffects(secret);
                 logger.info(`TRIGGERED SECRET for ${this.data.name}: ${secret.id}`);
             }
         }
@@ -722,6 +736,7 @@ export default class Suspect {
                 if (composureLoss >= minPressure) {
                     revealedSecret = targetSecret;
                     this._revealedSecrets.add(targetSecret.id);
+                    this.applySecretEffects(targetSecret);
                     logger.info(`🔓 SECRET REVEALED via evidence: ${targetSecret.id}`);
                     caseLogger?.logTrigger(this.data.name, targetSecret.id, {
                         method: 'EVIDENCE',

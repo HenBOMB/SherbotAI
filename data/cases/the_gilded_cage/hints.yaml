@@ -1,48 +1,71 @@
-id: halon_rules_check
-tool: examine
-condition:
-queryContains: halon_system
-label: OBSERVATION
-emoji: ⚠️
-text: Read the system rules carefully. The gas CANNOT deploy unless the door is physically locked. Elias was inside. Who locked him in?
-spoiler: false
-id: clara_purse_find
-tool: search
-condition:
-location: ballroom
-label: DEDUCTION
-emoji: 💡
-text: Clara left her purse in the ballroom. There is a text message on her phone sent at 10:40 PM that changes the entire timeline.
-spoiler: true
-id: chemistry_deduction
-tool: examine
-condition:
-queryContains: tapestry_tube
-label: INDUCTION
-emoji: 🧪
-text: The residue is a mix of smoke pellet and "Cryo-Melt Gel". Check the Restoration Studio inventory. Who checked out a gel that takes exactly 100 minutes to dissolve?
-spoiler: true
-id: julian_audio_stall
-tool: logs
-condition:
-queryContains: av_audio_recording
-label: ABDUCTION
-emoji: 🎤
-text: Julian pauses for 15 seconds at 10:44 PM during his speech. He wasn't losing his place; he was stalling, waiting for a very specific alarm to go off.
-spoiler: true
-id: marcus_red_herring
-tool: examine
-condition:
-queryContains: marcus
-label: OBSERVATION
-emoji: 🔎
-text: Marcus paid Anya to turn off the cameras at 10:35. But look at the lockpicks and the scratch marks on the Director's door. Was he trying to kill Elias, or rob Julian?
-spoiler: true
-id: the_fatal_knock
-tool: examine
-condition:
-queryContains: defensive_wounds
-label: DEDUCTION
-emoji: 🚪
-text: Elias bruised his hands beating on the door. Clara spun the lock at 10:42. She thought she was securing an empty room, but she sealed his tomb.
-spoiler: true
+- id: halon_rules_check
+  tool: examine
+  condition:
+    queryContains: halon_system_rules
+  label: OBSERVATION
+  emoji: ⚠️
+  text: "Review the Halon system rules carefully. The gas ONLY deploys if smoke is detected AND the heavy steel door is physically sealed. Elias entered at 10:30 PM, but the gas deployed at 10:45 PM. Someone had to have locked that door from the outside in between."
+  spoiler: false
+
+- id: clara_phone_passcode
+  tool: examine
+  condition:
+    queryContains: clara_phone
+  label: PUZZLE
+  emoji: 📱
+  text: "Clara's phone requires a 4-digit PIN. Take a closer look at her workstation in the Restoration Studio. Is there a specific date she is trying to remember?"
+  spoiler: false
+
+- id: the_fatal_knock
+  tool: examine
+  condition:
+    queryContains: defensive_wounds
+  label: DEDUCTION
+  emoji: 🚪
+  text: "The autopsy notes severe bruising exclusively on the back of Elias's knuckles. These aren't fight wounds. These are from frantically banging on a solid steel door. Check the digital logs to see exactly when that door was shut."
+  spoiler: false
+
+- id: chemistry_deduction
+  tool: examine
+  condition:
+    queryContains: tapestry_tube_residue
+  label: INDUCTION
+  emoji: 🧪
+  text: "The residue contains 'Cryo-Melt Gel', which degrades completely in exactly 100 minutes. If the smoke triggered the alarms at 10:45 PM, do the math backwards. Who was in the vault exactly 100 minutes prior?"
+  spoiler: true
+
+- id: handkerchief_timeline
+  tool: examine
+  condition:
+    queryContains: sterling_handkerchief
+  label: DEDUCTION
+  emoji: 🧥
+  text: "Marcus's handkerchief was found near the body. However, check the 09:05 PM security footage. The unidentified figure carrying the tapestry tube already has a white pocket square in their breast pocket. Was Marcus's handkerchief planted earlier?"
+  spoiler: true
+
+- id: julian_audio_stall
+  tool: examine
+  condition:
+    queryContains: av_audio_recording
+  label: ABDUCTION
+  emoji: 🎤
+  text: "Listen to the AV recording carefully. Julian pauses his speech for 15 seconds at exactly 10:44 PM, right before the alarms sound. Is it stage fright, or was he silently counting down to a chemical timer he knew was about to go off?"
+  spoiler: true
+
+- id: marcus_red_herring
+  tool: examine
+  condition:
+    queryContains: marcus_lockpicks
+  label: OBSERVATION
+  emoji: 🔎
+  text: "Marcus paid Anya to blind the cameras at 10:35 PM, but he also dropped lockpicks and left fresh scratches on the Director's Office door. Was he orchestrating a murder, or just exploiting the gala's chaos to commit a burglary?"
+  spoiler: true
+
+- id: shredder_pen_match
+  tool: examine
+  condition:
+    queryContains: shredder_reconstruction
+  label: CONNECTION
+  emoji: 🖊️
+  text: "Look closely at the handwriting on the reconstructed ledger. The margin note is written in a dark blue gel ink that smudges easily. Where else have you seen that specific type of ink used in the basement tonight?"
+  spoiler: true

@@ -262,6 +262,15 @@ export async function handleExamine(
         return;
     }
 
+    // --- ANALYSIS CHECK ---
+    let requiresAnalysisWarning = false;
+    const rawDesc = activeGame.getPhysicalEvidence(targetItem);
+    if (rawDesc && typeof rawDesc !== 'string' && rawDesc.requires_analysis) {
+        if (!activeGame.state?.unlockedItems.has(targetItem.toLowerCase())) {
+            requiresAnalysisWarning = true;
+        }
+    }
+
     const result = processExamine(targetItem);
 
     // Create buttons if we have a list to cycle
@@ -291,20 +300,31 @@ export async function handleExamine(
         return row;
     };
 
-    const embed = createToolEmbed(
+    const image = (rawDesc && typeof rawDesc !== 'string') ? rawDesc.image : undefined;
+    const resultEmbed = createToolEmbed(
         'examine' as any,
         targetItem,
         result.result,
         result.cost,
         result.success,
         result.error,
-        { hintEngine: activeGame.hints }
+        { hintEngine: activeGame.hints, image }
     );
+    const embed = resultEmbed.embed;
+
+    if (requiresAnalysisWarning) {
+        embed.addFields({
+            name: '🧪 FURTHER ANALYSIS REQUIRED',
+            value: `This item appears to hold more secrets, but requires specialized forensic reconstruction to fully comprehend.`
+        });
+        embed.setColor(Colors.Orange);
+    }
 
     const row = createButtons(targetItem, evidenceList);
 
     const response = await interaction.reply({
         embeds: [embed],
+        files: resultEmbed.files,
         components: row ? [row] : [],
         fetchReply: true
     });
@@ -332,20 +352,41 @@ export async function handleExamine(
                 }
 
                 const newRes = processExamine(newItemId);
-                const newEmbed = createToolEmbed(
+                const newItem = activeGame.getPhysicalEvidence(newItemId);
+                const newImage = (newItem && typeof newItem !== 'string') ? newItem.image : undefined;
+                const newResultEmbed = createToolEmbed(
                     'examine' as any,
                     newItemId,
                     newRes.result,
                     newRes.cost,
                     newRes.success,
                     newRes.error,
-                    { hintEngine: activeGame.hints }
+                    { hintEngine: activeGame.hints, image: newImage }
                 );
+
+                const newEmbed = newResultEmbed.embed;
+
+                let newItemWarning = false;
+                const newRaw = activeGame.getPhysicalEvidence(newItemId);
+                if (newRaw && typeof newRaw !== 'string' && newRaw.requires_analysis) {
+                    if (!activeGame.state?.unlockedItems.has(newItemId.toLowerCase())) {
+                        newItemWarning = true;
+                    }
+                }
+
+                if (newItemWarning) {
+                    newEmbed.addFields({
+                        name: '🧪 FURTHER ANALYSIS REQUIRED',
+                        value: `This item appears to hold more secrets, but requires specialized forensic reconstruction to fully comprehend.`
+                    });
+                    newEmbed.setColor(Colors.Orange);
+                }
 
                 const newRow = createButtons(newItemId, evidenceList);
 
                 await i.update({
                     embeds: [newEmbed],
+                    files: newResultEmbed.files,
                     components: newRow ? [newRow] : []
                 });
             } catch (e) {

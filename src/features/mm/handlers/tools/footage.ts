@@ -58,7 +58,7 @@ export async function handleFootage(
     const result = tools.viewFootage(time);
     let battery = 100;
 
-    const embed = createToolEmbed(
+    const resultEmbed = createToolEmbed(
         'footage',
         time,
         result.result,
@@ -73,7 +73,8 @@ export async function handleFootage(
     const row = manager.createFootageButtons(currentIndex, allTimes);
 
     const response = await interaction.reply({
-        embeds: [embed],
+        embeds: [resultEmbed.embed],
+        files: resultEmbed.files,
         components: row ? [row] : [],
         fetchReply: true
     });
@@ -121,7 +122,7 @@ export async function handleFootage(
             // Register evidence for secret triggers
             manager.addDiscoveredEvidence(`footage_${newTime}`);
 
-            const newEmbed = createToolEmbed(
+            const newResultEmbed = createToolEmbed(
                 'footage',
                 newTime,
                 isExpired ? null : newResult.result,
@@ -135,7 +136,8 @@ export async function handleFootage(
             let newRow = isExpired ? null : manager.createFootageButtons(newIndex, allTimes);
 
             await i.update({
-                embeds: [newEmbed],
+                embeds: [newResultEmbed.embed],
+                files: newResultEmbed.files,
                 components: newRow ? [newRow] : []
             });
 
@@ -158,7 +160,7 @@ export async function handleFootage(
     collector.on('end', async (_, reason) => {
         if (reason === 'time' || reason === 'battery_exhausted') {
             try {
-                const finalEmbed = createToolEmbed(
+                const finalResultEmbed = createToolEmbed(
                     'footage',
                     time,
                     null,
@@ -167,7 +169,7 @@ export async function handleFootage(
                     undefined,
                     { battery: 0 }
                 );
-                await response.edit({ components: [], embeds: [finalEmbed] }).catch(() => { });
+                await response.edit({ components: [], embeds: [finalResultEmbed.embed], files: finalResultEmbed.files }).catch(() => { });
             } catch (e) { }
         }
     });

@@ -6,3 +6,4 @@ export * from './tools/present.js';
 export * from './tools/logs.js';
 export * from './tools/evidence.js';
 export * from './tools/look.js';
+export * from './tools/analyze.js';

@@ -136,6 +136,16 @@ export const mmCommands = new SlashCommandBuilder()
             )
     )
     .addSubcommand(sub =>
+        sub.setName('analyze')
+            .setDescription('Run forensic analysis on discovered evidence (Costs 2 pts)')
+            .addStringOption(opt =>
+                opt.setName('item')
+                    .setDescription('Item name to analyze (e.g. "blood", "shredder").')
+                    .setRequired(true)
+                    .setAutocomplete(true)
+            )
+    )
+    .addSubcommand(sub =>
         sub.setName('present')
             .setDescription('Present evidence to a suspect (Phoenix Wright style!)')
             .addStringOption(opt =>
@@ -439,16 +449,18 @@ export function createToolEmbed(
     success: boolean,
     error?: string,
     metadata?: any
-): EmbedBuilder {
+): { embed: EmbedBuilder; files: AttachmentBuilder[] } {
     const embed = new EmbedBuilder();
+    const files: AttachmentBuilder[] = [];
 
     // --- ERROR STATE ---
     if (!success || error) {
-        return embed
+        embed
             .setColor(Colors.Red)
             .setTitle('❌ Investigation Setback')
             .setDescription(`\`\`\`diff\n- THE TRAIL GROWS COLD\n- ${error || 'Unknown Error'}\n\`\`\``)
             .setFooter({ text: `Cost: ${cost > 0 ? cost : 0} pts` });
+        return { embed, files };
     }
 
     // --- CHEMICAL ANALYSIS ---
@@ -479,13 +491,13 @@ export function createToolEmbed(
         const hintEngine: HintEngine | undefined = metadata?.hintEngine;
         const dnaHint = hintEngine ? hintEngine.evaluate('dna', query) : '';
 
-        return embed
+        embed
             .setColor(dnaHint ? Colors.Orange : Colors.Blue)
             .setTitle('🧪 Chemical Analysis')
             .setDescription(visual + dnaHint);
     }
 
-    if (tool === 'footage') {
+    else if (tool === 'footage') {
         const cleanResult = typeof result === 'string' ? result : 'No account available.';
         const battery = metadata?.battery ?? 100;
         const isExpired = battery <= 0;
@@ -523,12 +535,10 @@ export function createToolEmbed(
         } else {
             embed.setFooter({ text: 'Courtesy of the Witness (Free)' });
         }
-
-        return embed;
     }
 
     // --- PRIVATE CORRESPONDENCE ---
-    if (tool === 'logs') {
+    else if (tool === 'logs') {
         const cleanResult = typeof result === 'string' ? result : 'No correspondence found for this date.';
 
         let visual = '```ansi\n';
@@ -556,12 +566,10 @@ export function createToolEmbed(
         } else {
             embed.setFooter({ text: 'Previously Unsealed (Free)' });
         }
-
-        return embed;
     }
 
     // --- SCENE INVESTIGATION ---
-    if (tool === 'search') {
+    else if (tool === 'search') {
         const location = capitalize(query);
         const discovered = Array.isArray(result) ? result : [];
 
@@ -592,14 +600,14 @@ export function createToolEmbed(
         const hintEngine: HintEngine | undefined = metadata?.hintEngine;
         const searchHint = hintEngine ? hintEngine.evaluate('search', query) : '';
 
-        return embed
+        embed
             .setColor(searchHint ? Colors.Orange : Colors.Gold)
             .setTitle('🔍 Scene Investigation')
             .setDescription(visual + searchHint);
     }
 
     // --- DEDUCTIVE ANALYSIS ---
-    if (tool === 'examine') {
+    else if (tool === 'examine') {
         const itemName = capitalize(query);
         const description = typeof result === 'string' ? result : 'No details available.';
 
@@ -621,18 +629,66 @@ export function createToolEmbed(
         const hintEngine: HintEngine | undefined = metadata?.hintEngine;
         const hintText = hintEngine ? hintEngine.evaluate('examine', query) : '';
 
-        return embed
+        embed
             .setColor(hintText ? Colors.Orange : Colors.Aqua)
             .setTitle('🧠 Deductive Analysis')
             .setDescription(visual + hintText);
     }
 
-    // Fallback
-    return embed
-        .setColor(Colors.Grey)
-        .setDescription(`**Result:** ${result}`)
-        .setFooter({ text: `Cost: ${cost}` });
+    // --- FORENSIC ANALYSIS ---
+    else if (tool === 'analyze') {
+        const itemName = capitalize(query);
+        const description = typeof result === 'string' ? result : 'Analysis completed.';
 
+        let visual = '```ansi\n';
+        visual += `\u001b[1;36m[ FORENSIC RECONSTRUCTION: ${itemName} ]\u001b[0m\n`;
+        visual += '----------------------------------------\n\n';
+        visual += `\u001b[1;30mREPORT STATUS: \u001b[1;32mCOMPLETE\u001b[0m\n`;
+        visual += `\u001b[1;30mAUTHORITY: \u001b[1;33mSCOTLAND YARD FORENSICS\u001b[0m\n\n`;
+
+        // Wrap text
+        const lines = description.match(/.{1,40}(\s|$)/g) || [description];
+        lines.forEach(line => {
+            visual += `  \u001b[0;37m${line.trim()}\u001b[0m\n`;
+        });
+
+        visual += '\n----------------------------------------\n';
+        visual += `Method: FORENSIC ANALYSIS | Cost: ${cost} pts\n`;
+        visual += '```';
+
+        embed
+            .setColor(Colors.Purple)
+            .setTitle('🔬 Breakthrough: Forensic Report Ready')
+            .setDescription(visual);
+    }
+
+    // Fallback
+    else {
+        embed
+            .setColor(Colors.Grey)
+            .setDescription(`**Result:** ${result}`)
+            .setFooter({ text: `Cost: ${cost}` });
+    }
+
+    // Add image if provided in metadata
+    if (metadata?.image) {
+        if (metadata.image.startsWith('http')) {
+            embed.setImage(metadata.image);
+        } else {
+            const filename = `evidence_${path.basename(metadata.image)}`;
+            try {
+                const fullPath = path.isAbsolute(metadata.image) ? metadata.image : path.join(process.cwd(), 'public', metadata.image);
+                if (fs.existsSync(fullPath)) {
+                    files.push(new AttachmentBuilder(fullPath, { name: filename }));
+                    embed.setImage(`attachment://${filename}`);
+                }
+            } catch (e) {
+                console.error(`Failed to attach image for tool ${tool}`, e);
+            }
+        }
+    }
+
+    return { embed, files };
 }
 
 /**
@@ -902,6 +958,24 @@ export function createCaseBriefingEmbeds(
                 sceneEmbed.setThumbnail(`attachment://${filename}`);
             } catch (e) {
                 console.error("Failed to attach victim avatar", e);
+            }
+        }
+    }
+
+    // Add autopsy report image if available
+    if (victim.image) {
+        if (victim.image.startsWith('http')) {
+            sceneEmbed.setImage(victim.image);
+        } else {
+            const filename = `autopsy_${path.basename(victim.image)}`;
+            try {
+                const fullPath = path.isAbsolute(victim.image) ? victim.image : path.join(process.cwd(), 'public', victim.image);
+                if (fs.existsSync(fullPath)) {
+                    files.push(new AttachmentBuilder(fullPath, { name: filename }));
+                    sceneEmbed.setImage(`attachment://${filename}`);
+                }
+            } catch (e) {
+                console.error("Failed to attach autopsy report", e);
             }
         }
     }

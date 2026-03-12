@@ -75,7 +75,7 @@ export async function handleSearch(
     }
 
     const result = tools.search(locationId);
-    const embed = createToolEmbed(
+    const resultEmbed = createToolEmbed(
         'search',
         locationId,
         result.result,
@@ -86,7 +86,10 @@ export async function handleSearch(
     );
 
     // Update the original message with findings
-    await interaction.editReply({ embeds: [embed] });
+    await interaction.editReply({
+        embeds: [resultEmbed.embed],
+        files: resultEmbed.files
+    });
 
     // Unlock the channel
     manager.setExploring(channel.id, false);

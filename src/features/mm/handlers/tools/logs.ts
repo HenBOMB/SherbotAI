@@ -31,7 +31,7 @@ export async function handleLogs(
     const time = interaction.options.getString('time', true);
     const result = tools.viewLogs(time);
 
-    const embed = createToolEmbed(
+    const resultEmbed = createToolEmbed(
         'logs',
         time,
         result.result,
@@ -51,7 +51,8 @@ export async function handleLogs(
     const row = manager.createLogsButtons(currentIndex, allTimes);
 
     const response = await interaction.reply({
-        embeds: [embed],
+        embeds: [resultEmbed.embed],
+        files: resultEmbed.files,
         components: row ? [row] : [],
         fetchReply: true
     });
@@ -95,7 +96,7 @@ export async function handleLogs(
             // Register evidence for secret triggers
             manager.addDiscoveredEvidence(`logs_${newTime}`);
 
-            const newEmbed = createToolEmbed(
+            const newResultEmbed = createToolEmbed(
                 'logs',
                 newTime,
                 newResult.result,
@@ -108,7 +109,8 @@ export async function handleLogs(
             const newRow = manager.createLogsButtons(newIndex, allTimes);
 
             await i.update({
-                embeds: [newEmbed],
+                embeds: [newResultEmbed.embed],
+                files: newResultEmbed.files,
                 components: newRow ? [newRow] : []
             });
         } catch (err) {

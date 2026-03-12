@@ -128,3 +128,5 @@ dist
 
 test/
 public/avatars/
+
+commit.sh

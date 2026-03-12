@@ -46,7 +46,7 @@ export async function handleDNA(
 
     const location = normalizeLocationId(rawLocation);
     const result = tools.analyzeDNA(location);
-    const embed = createToolEmbed(
+    const resultEmbed = createToolEmbed(
         'dna',
         location,
         result.result,
@@ -56,7 +56,10 @@ export async function handleDNA(
         { hintEngine: activeGame.hints }
     );
 
-    await interaction.reply({ embeds: [embed] });
+    await interaction.reply({
+        embeds: [resultEmbed.embed],
+        files: resultEmbed.files
+    });
 
     if (result.success) {
         manager.getDashboard().addEvent('tool_use', `DNA analysis at ${location}`);

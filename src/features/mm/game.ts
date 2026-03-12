@@ -50,7 +50,7 @@ import InterrogationManager from './interrogation.js';
 import { handleStart } from './handlers/start.js';
 import { handleStatus } from './handlers/status.js';
 import { handleJoin } from './handlers/join.js';
-import { handleDNA, handleFootage, handleLogs, handleSearch, handleExamine, handlePresent, handleEvidence, handleLook } from './handlers/tools.js';
+import { handleDNA, handleFootage, handleLogs, handleSearch, handleExamine, handlePresent, handleEvidence, handleLook, handleAnalyze } from './handlers/tools.js';
 import { handleAccuse } from './handlers/accuse.js';
 import { handleGenerate } from './handlers/generate.js';
 import { handleLeave } from './handlers/leave.js';
@@ -73,6 +73,7 @@ export default class GameManager {
     private dashboard: DashboardServer;
     private interrogationManager: InterrogationManager;
     private activeExplorations: Set<string> = new Set(); // Track channel IDs being explored
+    private activeAnalyses: Set<string> = new Set(); // Track channel IDs where analysis is in progress
     private pendingPasscodes: Map<string, string> = new Map(); // Track channel IDs waiting for a passcode: channelId -> itemId
     private isInitializing: boolean = false;
 
@@ -117,6 +118,7 @@ export default class GameManager {
      */
     public purgeEphemeralState(): void {
         this.activeExplorations.clear();
+        this.activeAnalyses.clear();
         this.pendingPasscodes.clear();
         this.interrogationManager.clearBuffers();
         logger.debug(`Ephemeral state purged for guild ${this.guildId}`);
@@ -314,6 +316,18 @@ export default class GameManager {
     }
 
     /**
+     * Analysis state management
+     */
+    public isAnalyzing(channelId: string): boolean {
+        return this.activeAnalyses.has(channelId);
+    }
+
+    public setAnalyzing(channelId: string, active: boolean) {
+        if (active) this.activeAnalyses.add(channelId);
+        else this.activeAnalyses.delete(channelId);
+    }
+
+    /**
      * Passcode state management
      */
     public setPendingPasscode(channelId: string, itemId: string | null) {
@@ -474,6 +488,10 @@ export default class GameManager {
 
     async handleLook(interaction: ChatInputCommandInteraction) {
         return handleLook(this, interaction);
+    }
+
+    async handleAnalyze(interaction: ChatInputCommandInteraction) {
+        return handleAnalyze(this, interaction);
     }
 
     /** Delegate to active case — normalizes both map formats */

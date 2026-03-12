@@ -25,6 +25,7 @@ export interface Victim {
         toxicology: string;
         other_findings: string;
     };
+    image?: string;
 }
 
 /**
@@ -38,6 +39,10 @@ export interface PhysicalItem {
     unlocked_description?: string;
     /** Evidence IDs that must be discovered before this item can be examined */
     requires_discovery?: string[];
+    /** Whether this item requires forensic analysis to reveal unlocked_description */
+    requires_analysis?: boolean;
+    /** Path to an image representing this item */
+    image?: string;
 }
 
 /**
@@ -75,6 +80,11 @@ export interface SecretData {
         keywords?: string[];
         /** Minimum composure loss before this can be revealed */
         minPressure?: number;
+    };
+    /** Optional effects that occur when this secret is revealed */
+    on_reveal?: {
+        /** Update the suspect's resistance level (e.g., 'expert' -> 'low') */
+        resistance_level?: string;
     };
 }
 
@@ -121,6 +131,8 @@ export interface RoomInteractable {
     unlocked_description?: string;
     /** Keyed dialogue responses for NPC interactables. Use 'default' for the initial greeting, and 'on_ask_about_<topic>' for topic-specific responses. */
     dialogue?: Record<string, string>;
+    /** Path to an image representing this interactable */
+    image?: string;
 }
 
 /**

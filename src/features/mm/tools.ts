@@ -8,6 +8,7 @@ export const TOOL_COSTS = {
     footage: 0.25,
     logs: 0.25,
     search: 1.0,
+    analyze: 2.0,
 } as const;
 
 export type ToolType = keyof typeof TOOL_COSTS;
@@ -253,6 +254,71 @@ export default class ToolsManager {
             tool: 'examine',
             cost,
             result: `Examined ${evidenceId}: ${description}`
+        });
+
+        return result;
+    }
+
+    /**
+     * Analyze a physical evidence item
+     */
+    analyze(evidenceId: string, options: { skipCost?: boolean } = {}): ToolResult {
+        const cost = options.skipCost ? 0 : TOOL_COSTS.analyze;
+
+        if (!this.case.state) {
+            return { success: false, tool: 'analyze' as any, cost: 0, query: evidenceId, result: null, error: 'No active game' };
+        }
+
+        if (!this.case.isActive()) {
+            return { success: false, tool: 'analyze' as any, cost: 0, query: evidenceId, result: null, error: 'Game has ended' };
+        }
+
+        const rawDescription = this.case.getPhysicalEvidence(evidenceId);
+
+        if (!rawDescription) {
+            return {
+                success: false,
+                tool: 'analyze' as any,
+                cost: 0,
+                query: evidenceId,
+                result: null,
+                error: `No information found for item: "${evidenceId}"`
+            };
+        }
+
+        // Must be a complex item (object) that explicitly requires analysis
+        if (typeof rawDescription === 'string' || !rawDescription.requires_analysis) {
+            return {
+                success: false,
+                tool: 'analyze' as any,
+                cost: 0,
+                query: evidenceId,
+                result: null,
+                error: `The item "${evidenceId}" does not require forensic analysis.`
+            };
+        }
+
+        if (cost > 0 && !this.case.usePoints(cost)) {
+            return { success: false, tool: 'analyze' as any, cost, query: evidenceId, result: null, error: `Not enough points (need ${cost})` };
+        }
+
+        // Unlock it
+        this.case.state.unlockedItems.add(evidenceId.toLowerCase());
+
+        const description = rawDescription.unlocked_description || rawDescription.description;
+
+        const result: ToolResult = {
+            success: true,
+            tool: 'analyze' as any,
+            cost,
+            query: evidenceId,
+            result: description,
+        };
+
+        this.case.state.usedTools.push({
+            tool: 'analyze' as any,
+            cost,
+            result: `Analyzed ${evidenceId}: ${description}`
         });
 
         return result;
