@@ -1,6 +1,14 @@
 # 🕵️ SherbotV2
 
+[![Discord](https://img.shields.io/discord/670107546480017409?color=7289da&label=Discord&logo=discord&logoColor=white)](https://discord.gg/xTUMgmgFRt)
+
+
 **SherbotV2** is a high-fidelity Discord bot designed to facilitate immersive, AI-powered **Murder Mystery** investigations. Built with Node.js and TypeScript, it leverages cutting-edge LLMs (Gemini, Ollama) to create dynamic suspect interactions and procedurally generated cases.
+
+![SherbotV2 Banner](./public/banner.png)
+
+Join our community: [Discord Server](https://discord.gg/xTUMgmgFRt)
+
 
 ---
 
