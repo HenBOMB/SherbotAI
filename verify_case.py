@@ -497,7 +497,7 @@ def validate_case(case_path: str):
         print(f"FATAL: Failed to parse {'YAML' if is_yaml else 'JSON'}: {e}")
         return
 
-    project_root = '/home/henry/Coding/Node/SherbotV2'
+    project_root = os.path.dirname(os.path.abspath(__file__))
 
     # Run all checks
     check_schema(data, r)
@@ -537,7 +537,8 @@ if __name__ == "__main__":
     parser.add_argument("--case", type=str, help="Path to the case file")
     args = parser.parse_args()
 
-    default_case = '/home/henry/Coding/Node/SherbotV2/data/cases/silicon_shadows/case.yaml'
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    default_case = os.path.join(script_dir, 'data', 'cases', 'the_gilded_cage', 'case.yaml')
     if not os.path.exists(default_case):
         default_case = default_case.replace('.yaml', '.json')
 

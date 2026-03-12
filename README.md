@@ -1,11 +1,11 @@
-# 🕵️ SherbotV2
+# 🕵️ SherbotAI
 
 [![Discord](https://img.shields.io/discord/670107546480017409?color=7289da&label=Discord&logo=discord&logoColor=white)](https://discord.gg/xTUMgmgFRt)
 
 
-**SherbotV2** is a high-fidelity Discord bot designed to facilitate immersive, AI-powered **Murder Mystery** investigations. Built with Node.js and TypeScript, it leverages cutting-edge LLMs (Gemini, Ollama) to create dynamic suspect interactions and procedurally generated cases.
+**SherbotAI** is a high-fidelity Discord bot designed to facilitate immersive, AI-powered **Murder Mystery** investigations. Built with Node.js and TypeScript, it leverages cutting-edge LLMs (Gemini, Ollama) to create dynamic suspect interactions and procedurally generated cases.
 
-![SherbotV2 Banner](./public/banner.png)
+![SherbotAI Banner](./public/banner.png)
 
 Join our community: [Discord Server](https://discord.gg/xTUMgmgFRt)
 
@@ -15,6 +15,9 @@ Join our community: [Discord Server](https://discord.gg/xTUMgmgFRt)
 ## 🔍 Key Features
 
 ### ⚖️ Murder Mystery (MM) Engine
+
+![Case Briefing](./public/thumbnails/case_briefing.png)
+
 *   **Immersive Investigations**: Players move between dedicated Discord channels representing different rooms (e.g., `#📍┃kitchen`, `#📍┃study`).
 *   **AI-Powered Interrogation**: Suspects are simulated by AI models, responding to player mentions in real-time. Confront them with evidence to force breakthroughs!
 *   **Forensic Toolset**: Use specialized commands to uncover the truth:
@@ -45,8 +48,8 @@ Join our community: [Discord Server](https://discord.gg/xTUMgmgFRt)
 
 1.  **Clone the repository**:
     ```bash
-    git clone https://github.com/your-username/SherbotV2.git
-    cd SherbotV2
+    git clone https://github.com/your-username/SherbotAI.git
+    cd SherbotAI
     ```
 
 2.  **Install dependencies**:
@@ -107,7 +110,7 @@ Join our community: [Discord Server](https://discord.gg/xTUMgmgFRt)
 ## 🏗️ Project Structure
 
 ```text
-SherbotV2/
+SherbotAI/
 ├── src/
 │   ├── features/
 │   │   ├── mm/          # Murder Mystery core logic
